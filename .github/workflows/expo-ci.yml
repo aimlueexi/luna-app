@@ -1,0 +1,43 @@
+name: Expo app CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'luna-native/**'
+      - '.github/workflows/expo-ci.yml'
+  pull_request:
+    paths:
+      - 'luna-native/**'
+      - '.github/workflows/expo-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: expo-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-bundle:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: luna-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Verify Expo package compatibility
+        run: npx expo install --check
+      - name: Type check
+        run: npm run typecheck
+      - name: Run native UI tests
+        run: npm test
+      - name: Compile Android and iOS bundles
+        run: |
+          npx expo export --platform android --output-dir dist/android
+          npx expo export --platform ios --output-dir dist/ios

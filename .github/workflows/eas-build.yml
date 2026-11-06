@@ -1,0 +1,64 @@
+name: EAS mobile builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        required: true
+        default: all
+        options:
+          - all
+          - android
+          - ios
+      profile:
+        description: Preview builds are for internal testing; production builds are for store distribution
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(inputs.platform == 'all' && '["android","ios"]' || format('["{0}"]', inputs.platform)) }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: luna-native
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Require Expo access token
+        run: test -n "$EXPO_TOKEN"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Build native app
+        run: npx eas-cli@latest build --platform "${{ matrix.platform }}" --profile "${{ inputs.profile }}" --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Download build artifact
+        run: npx eas-cli@latest build:download --platform "${{ matrix.platform }}" --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Upload APK, IPA, or AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-${{ matrix.platform }}-${{ inputs.profile }}-${{ github.sha }}
+          path: |
+            luna-native/*.apk
+            luna-native/*.ipa
+            luna-native/*.aab
+          if-no-files-found: error
+          retention-days: 14

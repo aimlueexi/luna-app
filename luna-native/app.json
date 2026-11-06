@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "luna",
+    "slug": "luna-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.luna.streaming"
+    },
+    "android": {
+      "package": "com.luna.streaming",
+      "adaptiveIcon": {
+        "backgroundColor": "#090a10"
+      }
+    },
+    "plugins": ["expo-video"]
+  }
+}

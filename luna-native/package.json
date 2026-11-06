@@ -1,0 +1,32 @@
+{
+  "name": "luna-native",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo/AppEntry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "test": "jest --runInBand",
+    "typecheck": "tsc --noEmit",
+    "build:android:apk": "eas build --platform android --profile preview",
+    "build:ios:ipa": "eas build --platform ios --profile production"
+  },
+  "dependencies": {
+    "expo": "~58.0.0",
+    "expo-video": "~58.0.13",
+    "react": "19.3.0",
+    "react-native": "0.88.0"
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "^14.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/react": "~19.2.0",
+    "jest": "~30.0.0",
+    "jest-expo": "~58.0.0",
+    "typescript": "~5.9.2"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  }
+}
