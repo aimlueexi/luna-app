@@ -30,7 +30,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
+          cache: npm
+          cache-dependency-path: luna-native/package-lock.json
+      - run: npm ci
       - name: Verify Expo package compatibility
         run: npx expo install --check
       - name: Type check
