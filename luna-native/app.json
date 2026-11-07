@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "luna",
-    "slug": "luna-mobile",
+    "slug": "luna",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -16,6 +16,14 @@
         "backgroundColor": "#090a10"
       }
     },
-    "plugins": ["expo-video"]
+    "plugins": [
+      "expo-video"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "83212f47-41cc-41c0-aae1-40c3b911ca44"
+      }
+    },
+    "owner": "aimlueexis-team"
   }
 }
