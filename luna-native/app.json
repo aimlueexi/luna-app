@@ -3,6 +3,7 @@
     "name": "luna",
     "slug": "luna",
     "version": "1.0.0",
+    "icon": "./assets/luna-app-icon.png",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
@@ -13,7 +14,8 @@
     "android": {
       "package": "com.luna.streaming",
       "adaptiveIcon": {
-        "backgroundColor": "#090a10"
+        "backgroundColor": "#090a10",
+        "foregroundImage": "./assets/luna-app-icon.png"
       }
     },
     "plugins": [
