@@ -18,7 +18,7 @@ EAS Build produces the installable native binaries:
 - `preview`: Android APK for internal testing; iOS internal distribution build.
 - `production`: Android AAB for Google Play; signed iOS IPA for App Store Connect.
 
-The GitHub Actions workflow **Expo app CI** runs type checks, UI tests, and Android/iOS bundle exports. **EAS mobile builds** runs manually and waits for the selected cloud builds, then downloads the APK/IPA/AAB as GitHub Actions artifacts. Add an `EXPO_TOKEN` repository secret, create/link the app to an Expo account with `npx eas-cli@latest init`, and configure signing credentials in EAS. For Ad Hoc iOS preview installs, register test devices in the Expo account first. Store distribution requires the matching Apple Developer and Google Play accounts and signing setup.
+The **Android APK** GitHub Actions workflow runs type checks and UI tests, then builds the Android `preview` APK with EAS and uploads it as the `luna-android-preview-apk` artifact. It runs on pushes to `main` that change `luna-native/**` and can also be started from the Actions tab. Add an `EXPO_TOKEN` repository secret before running it. Configure signing credentials in EAS. For Ad Hoc iOS preview installs, register test devices in the Expo account first. Store distribution requires the matching Apple Developer and Google Play accounts and signing setup.
 
 Before release, replace the example identifiers `com.luna.streaming` with identifiers owned by the publisher, add final app icons/splash artwork, connect an authorized HLS/DRM source, and complete privacy/store metadata. The current video player uses a public sample clip for UI demonstration only.
 

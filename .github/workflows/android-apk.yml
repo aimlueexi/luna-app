@@ -1,0 +1,95 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "luna-native/**"
+      - ".github/workflows/android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Typecheck and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: luna-native
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: luna-native/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test -- --ci
+
+  build-apk:
+    name: Build and package Android APK
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: luna-native
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: luna-native/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build APK with EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          test -n "$EXPO_TOKEN" || { echo "GitHub secret EXPO_TOKEN is required" >&2; exit 1; }
+          npx --yes eas-cli@latest build \
+            --platform android \
+            --profile preview \
+            --non-interactive \
+            --wait \
+            --json > "$RUNNER_TEMP/eas-build.json"
+
+      - name: Download APK from EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          BUILD_ID=$(node -e 'const fs=require("fs"); const data=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); const items=Array.isArray(data)?data:[data]; const find=(x)=>{ if(!x||typeof x!=="object") return null; if(typeof x.id==="string" && /^[0-9a-f-]{36}$/i.test(x.id)) return x.id; for(const v of Object.values(x)){ const id=find(v); if(id) return id; } return null; }; const id=items.map(find).find(Boolean); if(!id) throw new Error("Could not find EAS build ID in build output"); process.stdout.write(id);' "$RUNNER_TEMP/eas-build.json")
+          echo "Downloading EAS build $BUILD_ID"
+          npx --yes eas-cli@latest build:download \
+            --build-id "$BUILD_ID" \
+            --non-interactive \
+            --json > "$RUNNER_TEMP/eas-download.json"
+          APK_PATH=$(node -e 'const fs=require("fs"); const result=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(typeof result.path!=="string") throw new Error("EAS did not return an artifact path"); process.stdout.write(result.path);' "$RUNNER_TEMP/eas-download.json")
+          mkdir -p artifacts
+          cp "$APK_PATH" artifacts/luna-preview.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: luna-android-preview-apk
+          path: luna-native/artifacts/luna-preview.apk
+          if-no-files-found: error
+          retention-days: 14
