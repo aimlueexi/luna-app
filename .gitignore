@@ -1,5 +1,4 @@
 .DS_Store
-/luna-prototype/
 node_modules/
 **/node_modules/
 .expo/
